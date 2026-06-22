@@ -1,0 +1,647 @@
+admissionControllerVersion: 0.1.54
+allowedResources:
+  admissionRegistrationResources: true
+  allowReadAll: true
+  argoWorkflows:
+    clusterWorkflowTemplates: true
+    cronWorkflows: true
+    workflowTemplates: true
+    workflows: true
+  authorizationResources: true
+  certificateSigningRequest: true
+  clusterRole: true
+  clusterRoleBinding: true
+  configMap: true
+  controllerRevision: true
+  cronjob: true
+  csiDriver: true
+  csiNode: true
+  csiStorageCapacity: true
+  customReadAPIGroups: []
+  daemonSet: true
+  deployment: true
+  endpointSlice: true
+  endpoints: true
+  event: true
+  flowControlResources: true
+  horizontalPodAutoscaler: true
+  ingress: true
+  ingressClass: true
+  job: true
+  lease: true
+  limitRange: true
+  metrics: true
+  namespace: true
+  networkPolicy: true
+  node: true
+  persistentVolume: true
+  persistentVolumeClaim: true
+  pod: true
+  podDisruptionBudget: true
+  podTemplate: true
+  policyResources: true
+  priorityClass: true
+  replicaSet: true
+  replicationController: true
+  resourceQuota: true
+  role: true
+  roleBinding: true
+  rollout: true
+  runtimeClass: true
+  secret: true
+  service: true
+  serviceAccount: true
+  statefulSet: true
+  storageClass: true
+  volumeAttachment: true
+apiKey: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+capabilities:
+  actions: false
+  admissionController:
+    binpacking:
+      addNodeAffinityToMarkedPods: true
+      markUnevictable: true
+    enabled: true
+    logFormat: json
+    logLevel: info
+    mutatingWebhook:
+      allowOnAKSManagedNamespaces: true
+      hpaRightsizingWebhookPath: /webhook/rightsizing/hpa
+      podBinpackingWebhookPath: /webhook/binpacking/pod
+      podRightsizingWebhookPath: /webhook/rightsizing/pod
+      selfManage: false
+      timeoutSeconds: 5
+    pdb:
+      enabled: true
+    rightsizing: {}
+    webhookServer:
+      port: 8443
+      reuseGeneratedTlsSecret: true
+      serviceName: komodor-admission-controller
+  cost:
+    hpa: true
+  crActions: false
+  events:
+    create: true
+    enableRWCache: true
+    namespacesDenylist: []
+    redact: []
+    watchNamespace: all
+  helm:
+    enabled: true
+    readonly: false
+  kubectlProxy:
+    enabled: false
+  logs:
+    enabled: true
+    logsNamespacesAllowlist: []
+    logsNamespacesDenylist: []
+    nameDenylist: []
+    redact: []
+  metrics: true
+  nodeEnricher: true
+  rbac: true
+  rbacClusterSyncParams:
+    enabled: false
+    ingressCertConfiguration: {}
+  rbacTempTokens: true
+  redaction:
+    secret:
+      enable: true
+      keepOnlyHelmReleases: false
+  tasks:
+    httpRequests:
+      skipTlsVerify: false
+  telemetry:
+    collectApiServerMetrics: false
+    deployOtelCollector: false
+    enabled: true
+  tunnel:
+    enabled: true
+    whitelist: []
+clusterName: xxxxxxxx
+communications: {}
+components:
+  admissionController:
+    PriorityClassValue: 10000000
+    affinity:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - preference:
+            matchExpressions:
+            - key: eks.amazonaws.com/capacityType
+              operator: NotIn
+              values:
+              - SPOT
+            - key: karpenter.sh/capacity-type
+              operator: NotIn
+              values:
+              - spot
+            - key: cloud.google.com/gke-spot
+              operator: NotIn
+              values:
+              - "true"
+            - key: cloud.google.com/gke-preemptible
+              operator: NotIn
+              values:
+              - "true"
+            - key: kubernetes.azure.com/scalesetpriority
+              operator: NotIn
+              values:
+              - spot
+          weight: 100
+      podAffinity: {}
+      podAntiAffinity: {}
+    annotations: {}
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      readOnlyRootFilesystem: true
+      runAsGroup: 1003820001
+      runAsNonRoot: true
+      runAsUser: 1003820001
+    extraEnvVars: []
+    extraVolumes: []
+    image:
+      name: admission-controller
+      tag: 0.1.54
+    labels: {}
+    leaderElectionLeaseName: ""
+    nodeSelector: {}
+    podAnnotations: {}
+    podSecurityContext:
+      runAsGroup: 1003820001
+      runAsNonRoot: true
+      runAsUser: 1003820001
+      seccompProfile:
+        type: RuntimeDefault
+    priorityClassName: ""
+    replicas: 2
+    resources:
+      limits:
+        cpu: 1
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    securityContext: {}
+    serviceAccount:
+      annotations: {}
+      create: true
+    strategy: {}
+    tolerations: []
+  gpuAccess:
+    containerSecurityContext: {}
+    enabled: false
+    image: alpine:latest
+    labels: {}
+    nodeSelector: {}
+    podSecurityContext: {}
+    pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 250m
+        memory: 100Mi
+      requests:
+        cpu: 100m
+        memory: 50Mi
+    tolerations:
+    - effect: NoSchedule
+      key: nvidia.com/gpu
+      operator: Exists
+  komodorAgent:
+    PriorityClassValue: 10000000
+    affinity: {}
+    annotations: {}
+    labels: {}
+    nodeSelector: {}
+    podAnnotations: {}
+    podSecurityContext:
+      runAsGroup: XXXXXXXX
+      runAsNonRoot: true
+      runAsUser: XXXXXXXX
+      seccompProfile:
+        type: RuntimeDefault
+    priorityClassName: ""
+    securityContext: {}
+    strategy: {}
+    supervisor:
+      extraEnvVars: []
+      image:
+        name: komodor-agent
+      ports:
+        healthCheck: 8089
+      resources:
+        requests:
+          cpu: 0.1
+          memory: 256Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsGroup: 1003820001
+        runAsNonRoot: true
+        runAsUser: 1003820001
+    tolerations: []
+    watcher:
+      extraEnvVars: []
+      image:
+        name: komodor-agent
+      ports:
+        healthCheck: 8090
+      resource-agents:
+        limits:
+          memory: 1024Mi
+        requests:
+          cpu: 100m
+          memory: 512Mi
+      resources:
+        limits:
+          cpu: 2
+          memory: 8Gi
+        requests:
+          cpu: 0.25
+          memory: 256Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsGroup: 1003820001
+        runAsNonRoot: true
+        runAsUser: 1003820001
+  komodorDaemon:
+    PriorityClassValue: 10000000
+    affinity: {}
+    annotations: {}
+    disableHttp2: false
+    dnsPolicy: ClusterFirst
+    hostNetwork: false
+    labels: {}
+    metrics:
+      extraEnvVars: []
+      image:
+        name: telegraf
+        tag: v2.0.41-alpine
+      quiet: false
+      resources:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 0.1
+          memory: 384Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          add: []
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsGroup: 1003820000
+        runAsNonRoot: true
+        runAsUser: 1003820000
+      sidecar:
+        enabled: true
+    metricsInit:
+      extraEnvVars: []
+      image:
+        name: komodor-agent
+      resources:
+        limits:
+          cpu: 1
+          memory: 100Mi
+        requests:
+          cpu: 0.1
+          memory: 50Mi
+    nodeEnricher:
+      extraEnvVars: []
+      image:
+        name: komodor-agent
+      resources:
+        limits:
+          cpu: 10m
+          memory: 100Mi
+        requests:
+          cpu: 1m
+          memory: 10Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          add: []
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsGroup: ***********
+        runAsNonRoot: true
+        runAsUser: ************
+    nodeSelector: {}
+    opentelemetry:
+      extraEnvVars: []
+      image:
+        name: komodor-otel-collector
+        tag: 0.1.9
+      otelInit:
+        configFileName: otel-config.yaml
+        enabled: true
+        extraEnvVars: []
+        image:
+          name: komodor-agent
+        resources:
+          limits:
+            cpu: 1
+            memory: 100Mi
+          requests:
+            cpu: 0.1
+            memory: 50Mi
+        sidecar:
+          autoReloadConfig: true
+          enabled: true
+          pollingIntervalSeconds: 300
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          add:
+          - DAC_OVERRIDE
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsGroup: 0
+        runAsNonRoot: false
+        runAsUser: 0
+      volumes:
+        varlibdockercontainers:
+          hostPath:
+            path: /var/lib/docker/containers
+            type: ""
+          mountPath: /var/lib/docker/containers
+        varlogpods:
+          hostPath:
+            path: /var/log/pods
+            type: ""
+          mountPath: /var/log/pods
+    podAnnotations: {}
+    podSecurityContext:
+      fsGroup: 1003820000
+      runAsGroup: 1003820000
+      runAsNonRoot: true
+      runAsUser: 1003820000
+      seccompProfile:
+        type: RuntimeDefault
+    priorityClassName: ""
+    securityContext: {}
+    tolerations:
+    - operator: Exists
+    updateStrategy: {}
+  komodorDaemonWindows:
+    affinity: {}
+    annotations: {}
+    dnsPolicy: ClusterFirst
+    labels: {}
+    metrics:
+      extraEnvVars: []
+      image:
+        name: telegraf-windows
+        tag: v2.0.41
+      quiet: false
+      resources:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 0.1
+          memory: 384Mi
+      sidecar:
+        enabled: true
+    metricsInit:
+      extraEnvVars: []
+      image:
+        name: komodor-agent-windows
+      resources:
+        limits:
+          cpu: 1
+          memory: 100Mi
+        requests:
+          cpu: 0.1
+          memory: 50Mi
+    nodeSelector: {}
+    podAnnotations: {}
+    tolerations:
+    - operator: Exists
+    updateStrategy: {}
+  komodorKubectlProxy:
+    PriorityClassValue: 10000000
+    affinity: {}
+    annotations: {}
+    containerSecurityContext: {}
+    image:
+      name: nginx
+      tag: 1.30.0-alpine3.23-slim
+    labels: {}
+    nodeSelector: {}
+    podAnnotations: {}
+    podSecurityContext: {}
+    priorityClassName: ""
+    resources: {}
+    securityContext: {}
+    strategy: {}
+    tolerations: []
+  komodorMetrics:
+    PriorityClassValue: 10000000
+    affinity: {}
+    annotations: {}
+    disableHttp2: false
+    labels: {}
+    metrics:
+      extraEnvVars: []
+      image:
+        name: telegraf
+        tag: v2.0.41-alpine
+      resources:
+        limits:
+          cpu: 1
+          memory: 4Gi
+        requests:
+          cpu: 0.1
+          memory: 384Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsGroup: 1003820001
+        runAsNonRoot: true
+        runAsUser: 1003820001
+      sidecar:
+        enabled: true
+    metricsInit:
+      extraEnvVars: []
+      image:
+        name: komodor-agent
+      resources: {}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsGroup: 1003820001
+        runAsNonRoot: true
+        runAsUser: 1003820001
+    nodeSelector: {}
+    podAnnotations: {}
+    podSecurityContext:
+      runAsGroup: 1003820001
+      runAsNonRoot: true
+      runAsUser: 1003820001
+      seccompProfile:
+        type: RuntimeDefault
+    priorityClassName: ""
+    securityContext: {}
+    strategy: {}
+    tolerations: []
+createNamespace: true
+createRbac: true
+customCa:
+  enabled: false
+  resources:
+    limits:
+      cpu: 10m
+      memory: 100Mi
+    requests:
+      cpu: 1m
+      memory: 10Mi
+global: {}
+imageRepo: public.ecr.aws/komodor-public
+proxy:
+  enabled: false
+  komodorOnly: true
+  no_proxy_local_addresses: false
+pullPolicy: IfNotPresent
+serviceAccount:
+  annotations: {}
+  create: true
+site: eu
+tags: {}
+telegrafImageVersion: v2.0.41-alpine
+telegrafWindowsImageVersion: v2.0.41
+komodor-k8s-watcher.yaml
+
+apiServerUrl: https://kubernetes.default.svc.cluster.local
+serverHost: https://app.komodor.com
+wsHost: wss://app.eu.komodor.com
+tasksServerHost: https://app.komodor.com
+tasksV1ServerHost: https://app.komodor.com
+mgmtServerHost: https://app.komodor.com
+telemetryServerHost: https://telemetry.komodor.com
+clusterName: ***********
+chartVersion: "2.17.1"
+enableAgentTaskExecution: true
+enableAgentTaskExecutionV2: true
+allowReadingPodLogs: true
+enableHelm: true
+daemon:
+  enabled: true
+collectHistory: true
+watchNamespace: all
+namespacesDenylist: 
+  []
+logsNamespacesDenylist: 
+  []
+logsNamespacesAllowlist: 
+  []
+nameDenylist: 
+  []
+redact: 
+  []
+redactLogs: 
+  []
+redaction: 
+  secret:
+    enable: true
+    keepOnlyHelmReleases: false
+actions:
+  basic: false
+  advanced: false
+  podExec: false
+  portforward: false
+telemetry:
+  enable: true
+  collectApiServerMetrics: false
+  serverHost: https://telemetry.eu.komodor.com
+resync:
+  period: "0"
+
+tunnel:
+  enabled: true
+  whitelist: 
+    []
+
+resources:
+  admissionRegistrationResources: true
+  allowReadAll: true
+  argoWorkflows:
+    clusterWorkflowTemplates: true
+    cronWorkflows: true
+    workflowTemplates: true
+    workflows: true
+  authorizationResources: true
+  certificateSigningRequest: true
+  clusterRole: true
+  clusterRoleBinding: true
+  configMap: true
+  controllerRevision: true
+  cronjob: true
+  csiDriver: true
+  csiNode: true
+  csiStorageCapacity: true
+  customReadAPIGroups: []
+  daemonSet: true
+  deployment: true
+  endpointSlice: true
+  endpoints: true
+  event: true
+  flowControlResources: true
+  horizontalPodAutoscaler: true
+  ingress: true
+  ingressClass: true
+  job: true
+  lease: true
+  limitRange: true
+  metrics: true
+  namespace: true
+  networkPolicy: true
+  node: true
+  persistentVolume: true
+  persistentVolumeClaim: true
+  pod: true
+  podDisruptionBudget: true
+  podTemplate: true
+  policyResources: true
+  priorityClass: true
+  replicaSet: true
+  replicationController: true
+  resourceQuota: true
+  role: true
+  roleBinding: true
+  rollout: true
+  runtimeClass: true
+  secret: true
+  service: true
+  serviceAccount: true
+  statefulSet: true
+  storageClass: true
+  volumeAttachment: true
